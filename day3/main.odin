@@ -24,14 +24,17 @@ get_largest_joltage_from_line :: proc(line: string, digit_count := 12) -> (large
         return i64(largest - '0'), true
     }
 
-    largest_c := '0' - 1
-    for c, i in line {
+    largest_index := 0
+    for i := len(line) - digit_count; i >= 1; i -= 1 {
+        if rune(line[largest_index]) <= rune(line[i]) { largest_index = i }
+    }
+
+    fmt.println(line, largest_index)
+
+    for c, i in line[largest_index:] {
         if len(line) - i < digit_count { continue }
 
-        if largest_c <= c { largest_c = c }
-        else { break }
-
-        lower_part := get_largest_joltage_from_line(line[i + 1:], digit_count - 1) or_break
+        lower_part := get_largest_joltage_from_line(line[largest_index + i + 1:], digit_count - 1) or_break
         d := i64(c - '0')
         zeros := i64(math.pow10_f64(f64(digit_count) - 1))
         the_num := d * zeros + lower_part
@@ -51,7 +54,6 @@ part1 :: proc(input: string) {
     joltage := i64(0)
     line_count := 0
     for line in strings.split_lines_iterator(&input) {
-        fmt.printf("\rOn line %d", line_count)
         if len(line) < 2 { continue }
 
         joltage_num, _ := get_largest_joltage_from_line(line, 2)
@@ -70,7 +72,7 @@ part2 :: proc(input: string) {
     line_count := 0
     for line in strings.split_lines_iterator(&input) {
         if len(line) < 12 { continue }
-        fmt.printf("\rOn line %d", line_count)
+        // fmt.printf("\rOn line %d", line_count)
 
         joltage_num, _ := get_largest_joltage_from_line(line, 12)
         joltage += joltage_num
