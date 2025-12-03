@@ -20,6 +20,9 @@ Cache_Key :: struct {
 
 cache: map[Cache_Key]i64
 
+cache_hits := 0
+cache_misses := 0
+
 get_largest_joltage_from_line :: proc(line: string, digit_count := 12) -> (largest: i64 = 0, ok: bool = false) {
     if len(line) < digit_count { return }
 
@@ -27,7 +30,13 @@ get_largest_joltage_from_line :: proc(line: string, digit_count := 12) -> (large
         line,
         digit_count,
     }
-    if key in cache { return cache[key] }
+
+    if key in cache { 
+        cache_hits += 1
+        return cache[key]
+    } else {
+        cache_misses += 1
+    }
 
     if digit_count == 1 {
         largest := rune(0)
@@ -105,5 +114,6 @@ main :: proc() {
     }
 
     part2(input)
+    fmt.printfln("Cache: %d hits / %d misses (%.02f%%)", cache_hits, cache_misses, f32(cache_hits) / f32(cache_hits + cache_misses) * 100)
 }
 
