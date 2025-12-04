@@ -97,9 +97,7 @@ part1 :: proc(input: string) {
     fmt.printfln("Free: %v", access_count)
 }
 
-main :: proc() {
-    input := INPUT
-
+part2 :: proc(input: string) {
     width := strings.index(input, "\n")
     height := strings.count(input, "\n")
 
@@ -115,26 +113,40 @@ main :: proc() {
         line_index += 1
     }
     
-    for row in 0..<height {
-        for col in 0..<width {
-            fmt.printf("%v ", grid[row * width + col])
-        }
-        fmt.println()
-    }
-
     access_count := 0
-    for v, i in grid {
-        if !v { continue }
+    for {
+        removed := false
 
-        row := i / width
-        col := i % width
+        indicies: [dynamic]int
+        defer delete(indicies)
 
-        n := count_neighbors(grid, width, height, row, col)
-        if n < 4 {
-            access_count += 1
+        for v, i in grid {
+            if !v { continue }
+
+            row := i / width
+            col := i % width
+
+            n := count_neighbors(grid, width, height, row, col)
+            if n < 4 {
+                access_count += 1
+                removed = true
+                append(&indicies, i)
+            }
         }
+
+        for i in indicies {
+            grid[i] = false
+        }
+
+        if !removed { break }
     }
 
     fmt.printfln("Free: %v", access_count)
+}
+
+main :: proc() {
+    input := INPUT
+
+    part2(input)
 }
 
