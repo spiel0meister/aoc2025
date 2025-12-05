@@ -24,6 +24,20 @@ Range :: struct {
     start, end: u64,
 }
 
+get_range_overlap_count :: proc(range1, range2: Range) -> u64 {
+    if 
+        range2.start <= range1.start && range1.start <= range2.end ||
+        range2.start <= range1.end && range1.end <= range2.end || 
+        range1.start <= range2.start && range2.start <= range1.end ||
+        range1.start <= range2.end && range1.end <= range1.end {
+        highest_start := range1.start if range1.start > range2.start else range2.start
+        lowest_end := range1.end if range1.end < range2.end else range2.end
+        return lowest_end - highest_start + 1
+    }
+
+    return 0
+}
+
 part1 :: proc(input: string) {
     input := input
 
@@ -101,14 +115,14 @@ main :: proc() {
         append(&ranges, Range{start, end})
     }
 
-    nums: map[u64]struct{}
-    defer delete(nums)
-
+    num_count := u64(0)
     for range, i in ranges {
-        for num in range.start..=range.end {
-            if num not_in nums { nums[num] = {} }
+        range_size := range.end - range.start + 1
+        for second_range in ranges[:i] {
+            range_size -= get_range_overlap_count(range, second_range)
         }
+        num_count += range_size
     }
 
-    fmt.println("Different numbers:", len(nums))
+    fmt.println("Different numbers:", num_count)
 }
